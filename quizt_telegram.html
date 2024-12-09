@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raspadinha Virtual - 8 Perguntas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .question {
+            margin: 20px 0;
+        }
+        .options button {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+        }
+        .feedback {
+            font-weight: bold;
+        }
+        .total-score {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Raspadinha Virtual - 8 Perguntas</h1>
+
+    <!-- User Info Form -->
+    <form id="userInfoForm">
+        <label for="userName">Nome:</label>
+        <input type="text" id="userName" name="userName" required><br><br>
+        <label for="userEmail">Email:</label>
+        <input type="email" id="userEmail" name="userEmail" required><br><br>
+        <button type="button" onclick="startQuiz()">Iniciar Quiz</button>
+    </form>
+
+    <!-- Quiz (initially hidden) -->
+    <div id="quizContainer" style="display:none;">
+        <div class="question" id="question1">
+            <p>1. The capital of the United States of America is:</p>
+            <div class="options">
+                <button onclick="checkAnswer(this, 'A', 1)">A: Orlando</button>
+                <button onclick="checkAnswer(this, 'B', 1)">B: Washington D.C.</button>
+                <button onclick="checkAnswer(this, 'C', 1)">C: New York</button>
+                <button onclick="checkAnswer(this, 'D', 1)">D: Boston</button>
+            </div>
+            <p id="feedback1" class="feedback"></p>
+        </div>
+
+
+        <div class="total-score" id="totalScore">Total points: 0</div>
+        <button onclick="submitResults()">Send results</button>
+    </div>
+
+    <script>
+        var totalScore = 0;
+        var attempts = [0, 0, 0, 0, 0, 0, 0, 0];  // Array to store attempts for each question
+        var userAnswers = [];  // Array to store user answers
+
+        // Start the quiz
+        function startQuiz() {
+            var form = document.getElementById("userInfoForm");
+            var quiz = document.getElementById("quizContainer");
+
+            // Validate form
+            if (form.checkValidity()) {
+                form.style.display = "none";
+                quiz.style.display = "block";
+            } else {
+                alert("Please fill in all fields.");
+            }
+        }
+
+        // Check if the answer is correct
+        function checkAnswer(button, answer, questionNumber) {
+            var correctAnswers = ['C', 'A', 'B', 'D', 'D', 'C', 'D', 'B'];  // Correct answers
+            var feedbackId = 'feedback' + questionNumber;
+            var feedbackElement = document.getElementById(feedbackId);
+            attempts[questionNumber - 1]++;  // Increment attempts
+
+            // Record user answer
+            userAnswers[questionNumber - 1] = answer;
+
+            if (answer === correctAnswers[questionNumber - 1]) {
+                feedbackElement.textContent = "Correct! Points: " + getScore(attempts[questionNumber - 1]);
+                feedbackElement.style.color = "green";
+                button.style.backgroundColor = 'green';
+                totalScore += getScore(attempts[questionNumber - 1]);
+                updateTotalScore();
+            } else {
+                feedbackElement.textContent = "Incorrect! Trt again.";
+                feedbackElement.style.color = "red";
+                button.style.backgroundColor = 'red';
+            }
+        }
+
+        // Calculate score based on attempts
+        function getScore(attempts) {
+            if (attempts === 1) {
+                return 4;  // 4 points on first attempt
+            } else if (attempts === 2) {
+                return 2;  // 2 points on second attempt
+            } else {
+                return 1;  // 1 point on third attempt or more
+            }
+        }
+
+        // Update total score display
+        function updateTotalScore() {
+            var totalScoreElement = document.getElementById('totalScore');
+            totalScoreElement.textContent = "Pontuação Total: " + totalScore;
+        }
+
+        // Submit results to PHP backend
+        function submitResults() {
+            var userName = document.getElementById("userName").value;
+            var userEmail = document.getElementById("userEmail").value;
+            var resultMessage = "Nome: " + userName + "\nEmail: " + userEmail + "\nPontuação Total: " + totalScore + "\n\nRespostas:\n";
+
+            for (var i = 0; i < userAnswers.length; i++) {
+                resultMessage += "Pergunta " + (i + 1) + ": " + userAnswers[i] + "\n";
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "send_results_t.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    alert("Results successfully sent to Telegram!");
+                }
+            };
+            xhr.send("name=" + encodeURIComponent(userName) + "&email=" + encodeURIComponent(userEmail) + "&totalScore=" + totalScore + "&answers=" + encodeURIComponent(resultMessage));
+        }
+    </script>
+
+</body>
+</html>
+
