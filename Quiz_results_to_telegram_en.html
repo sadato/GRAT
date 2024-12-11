@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Quiz - 8 Questions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .question {
+            margin: 20px 0;
+        }
+        .options button {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+        }
+        .feedback {
+            font-weight: bold;
+        }
+        .total-score {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Virtual Scratch-off Quiz - 8 Questions</h1>
+
+    <!-- User Info Form -->
+    <form id="userInfoForm">
+        <label for="userName">Name:</label>
+        <input type="text" id="userName" name="userName" required><br><br>
+        <label for="userEmail">Email:</label>
+        <input type="email" id="userEmail" name="userEmail" required><br><br>
+        <button type="button" onclick="startQuiz()">Start Quiz</button>
+    </form>
+
+    <!-- Quiz (initially hidden) -->
+    <div id="quizContainer" style="display:none;">
+        <div class="question" id="question1">
+            <p>1. What is the smallest country in the world by area?</p>
+            <div class="options">
+                <button onclick="checkAnswer(this, 'A', 1)">A: Monaco</button>
+                <button onclick="checkAnswer(this, 'B', 1)">B: Nauru</button>
+                <button onclick="checkAnswer(this, 'C', 1)">C: Vatican City</button>
+                <button onclick="checkAnswer(this, 'D', 1)">D: San Marino</button>
+            </div>
+            <p id="feedback1" class="feedback"></p>
+        </div>
+
+        <div class="question" id="question2">
+            <p>2. What is the name of the famous rat chef from the movie "Ratatouille"?</p>
+            <div class="options">
+                <button onclick="checkAnswer(this, 'A', 2)">A: Rémy</button>
+                <button onclick="checkAnswer(this, 'B', 2)">B: Gustave</button>
+                <button onclick="checkAnswer(this, 'C', 2)">C: Marcel</button>
+                <button onclick="checkAnswer(this, 'D', 2)">D: Pierre</button>
+            </div>
+            <p id="feedback2" class="feedback"></p>
+        </div>
+
+        <div class="question" id="question3">
+            <p>3. What is the hottest planet in the Solar System?</p>
+            <div class="options">
+                <button onclick="checkAnswer(this, 'A', 3)">A: Mercury</button>
+                <button onclick="checkAnswer(this, 'B', 3)">B: Venus</button>
+                <button onclick="checkAnswer(this, 'C', 3)">C: Mars</button>
+                <button onclick="checkAnswer(this, 'D', 3)">D: Jupiter</button>
+            </div>
+            <p id="feedback3" class="feedback"></p>
+        </div>
+
+        <div class="question" id="question4">
+            <p>4. In what year was the first "iPhone" launched?</p>
+            <div class="options">
+                <button onclick="checkAnswer(this, 'A', 4)">A: 2005</button>
+                <button onclick="checkAnswer(this, 'B', 4)">B: 2007</button>
+                <button onclick="checkAnswer(this, 'C', 4)">C: 2009</button>
+                <button onclick="checkAnswer(this, 'D', 4)">D: 2010</button>
+            </div>
+            <p id="feedback4" class="feedback"></p>
+        </div>
+
+        <div class="question" id="question5">
+            <p>5. Which animal is known for its ability to stand on one leg?</p>
+            <div class="options">
+                <button onclick="checkAnswer(this, 'A', 5)">A: Crane</button>
+                <button onclick="checkAnswer(this, 'B', 5)">B: Penguin</button>
+                <button onclick="checkAnswer(this, 'C', 5)">C: Flamingo</button>
+                <button onclick="checkAnswer(this, 'D', 5)">D: Ostrich</button>
+            </div>
+            <p id="feedback5" class="feedback"></p>
+        </div>
+
+        <div class="question" id="question6">
+            <p>6. Which of these games featured the first playable female character?</p>
+            <div class="options">
+                <button onclick="checkAnswer(this, 'A', 6)">A: Lara Croft in "Tomb Raider"</button>
+                <button onclick="checkAnswer(this, 'B', 6)">B: Chun-Li in "Street Fighter II"</button>
+                <button onclick="checkAnswer(this, 'C', 6)">C: Ms. Pac-Man</button>
+                <button onclick="checkAnswer(this, 'D', 6)">D: Samus Aran in "Metroid"</button>
+            </div>
+            <p id="feedback6" class="feedback"></p>
+        </div>
+
+        <div class="question" id="question7">
+            <p>7. What is the only metal that is liquid at room temperature?</p>
+            <div class="options">
+                <button onclick="checkAnswer(this, 'A', 7)">A: Mercury</button>
+                <button onclick="checkAnswer(this, 'B', 7)">B: Lead</button>
+                <button onclick="checkAnswer(this, 'C', 7)">C: Aluminum</button>
+                <button onclick="checkAnswer(this, 'D', 7)">D: Iron</button>
+            </div>
+            <p id="feedback7" class="feedback"></p>
+        </div>
+
+        <div class="question" id="question8">
+            <p>8. In which country were French fries invented?</p>
+            <div class="options">
+                <button onclick="checkAnswer(this, 'A', 8)">A: France</button>
+                <button onclick="checkAnswer(this, 'B', 8)">B: Belgium</button>
+                <button onclick="checkAnswer(this, 'C', 8)">C: Netherlands</button>
+                <button onclick="checkAnswer(this, 'D', 8)">D: Germany</button>
+            </div>
+            <p id="feedback8" class="feedback"></p>
+        </div>
+
+        <div class="total-score" id="totalScore">Total Score: 0</div>
+        <button onclick="submitResults()">Submit Results</button>
+    </div>
+
+    <script>
+        var totalScore = 0;
+        var attempts = [0, 0, 0, 0, 0, 0, 0, 0];  // Array to store attempts for each question
+        var userAnswers = [];  // Array to store user answers
+
+        function startQuiz() {
+            var form = document.getElementById("userInfoForm");
+            var quiz = document.getElementById("quizContainer");
+
+            if (form.checkValidity()) {
+                form.style.display = "none";
+                quiz.style.display = "block";
+            } else {
+                alert("Please fill in all fields.");
+            }
+        }
+
+        function checkAnswer(button, answer, questionNumber) {
+            var correctAnswers = ['C', 'A', 'B', 'B', 'C', 'C', 'A', 'B'];
+            var feedbackId = 'feedback' + questionNumber;
+            var feedbackElement = document.getElementById(feedbackId);
+            attempts[questionNumber - 1]++;
+
+            userAnswers[questionNumber - 1] = answer;
+
+            if (answer === correctAnswers[questionNumber - 1]) {
+                feedbackElement.textContent = "Correct! Points: " + getScore(attempts[questionNumber - 1]);
+                feedbackElement.style.color = "green";
+                button.style.backgroundColor = 'green';
+                totalScore += getScore(attempts[questionNumber - 1]);
+                updateTotalScore();
+            } else {
+                feedbackElement.textContent = "Incorrect! Try again.";
+                feedbackElement.style.color = "red";
+                button.style.backgroundColor = 'red';
+            }
+        }
+
+        function getScore(attempts) {
+            if (attempts === 1) {
+                return 4;
+            } else if (attempts === 2) {
+                return 2;
+            } else {
+                return 1;
+            }
+        }
+
+        function updateTotalScore() {
+            var totalScoreElement = document.getElementById('totalScore');
+            totalScoreElement.textContent = "Total Score: " + totalScore;
+        }
+
+        function submitResults() {
+            var userName = document.getElementById("userName").value;
+            var userEmail = document.getElementById("userEmail").value;
+            var resultMessage = "Name: " + userName + "\nEmail: " + userEmail + "\nTotal Score: " + totalScore + "\n\nAnswers:\n";
+
+            for (var i = 0; i < userAnswers.length; i++) {
+                resultMessage += "Question " + (i + 1) + ": " + userAnswers[i] + "\n";
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "send_results_t.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    alert("Results successfully sent!");
+                }
+            };
+            xhr.send("name=" + encodeURIComponent(userName) + "&email=" + encodeURIComponent(userEmail) + "&totalScore=" + totalScore + "&answers=" + encodeURIComponent(resultMessage));
+        }
+    </script>
+
+</body>
+</html>
+
