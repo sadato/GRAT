@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raspadinha Virtual - 3 Perguntas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .question {
+            margin: 20px 0;
+        }
+        .options button {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+        }
+        .feedback {
+            font-weight: bold;
+        }
+        .total-score {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Raspadinha Virtual - 3 Perguntas sobre Capitais</h1>
+
+    <!-- User Info Form -->
+    <form id="userInfoForm">
+        <label for="userName">Nome:</label>
+        <input type="text" id="userName" name="userName" required><br><br>
+        <label for="userEmail">Email:</label>
+        <input type="email" id="userEmail" name="userEmail" required><br><br>
+        <button type="button" onclick="startQuiz()">Iniciar Quiz</button>
+    </form>
+
+    <!-- Quiz (initially hidden) -->
+    <div id="quizContainer" style="display:none;">
+        <div class="question" id="question1">
+            <p>1. Qual é a capital da França?</p>
+            <div class="options">
+                <button onclick="checkAnswer(this, 'A', 1)">A: Paris</button>
+                <button onclick="checkAnswer(this, 'B', 1)">B: Londres</button>
+                <button onclick="checkAnswer(this, 'C', 1)">C: Berlim</button>
+                <button onclick="checkAnswer(this, 'D', 1)">D: Roma</button>
+            </div>
+            <p id="feedback1" class="feedback"></p>
+        </div>
+
+        <div class="question" id="question2">
+            <p>2. Qual é a capital do Japão?</p>
+            <div class="options">
+                <button onclick="checkAnswer(this, 'A', 2)">A: Seul</button>
+                <button onclick="checkAnswer(this, 'B', 2)">B: Tóquio</button>
+                <button onclick="checkAnswer(this, 'C', 2)">C: Pequim</button>
+                <button onclick="checkAnswer(this, 'D', 2)">D: Bangkok</button>
+            </div>
+            <p id="feedback2" class="feedback"></p>
+        </div>
+
+        <div class="question" id="question3">
+            <p>3. Qual é a capital do Brasil?</p>
+            <div class="options">
+                <button onclick="checkAnswer(this, 'A', 3)">A: Brasília</button>
+                <button onclick="checkAnswer(this, 'B', 3)">B: São Paulo</button>
+                <button onclick="checkAnswer(this, 'C', 3)">C: Rio de Janeiro</button>
+                <button onclick="checkAnswer(this, 'D', 3)">D: Salvador</button>
+            </div>
+            <p id="feedback3" class="feedback"></p>
+        </div>
+
+        <div class="total-score" id="totalScore">Pontuação Total: 0</div>
+        <button onclick="submitResults()">Enviar Resultados</button>
+    </div>
+
+    <script>
+    var totalScore = 0;
+    var attempts = [0, 0, 0];
+    var userAnswers = [];
+    var answeredCorrectly = [false, false, false];
+    var currentQuestion = 1;
+
+    function startQuiz() {
+        var form = document.getElementById("userInfoForm");
+        var quiz = document.getElementById("quizContainer");
+
+        if (form.checkValidity()) {
+            form.style.display = "none";
+            quiz.style.display = "block";
+
+            for (var q = 2; q <= 3; q++) {
+                lockQuestion(q, true);
+            }
+        } else {
+            alert("Por favor, preencha todos os campos.");
+        }
+    }
+
+    function checkAnswer(button, answer, questionNumber) {
+        var correctAnswers = ['A', 'B', 'A'];
+        var feedbackElement = document.getElementById('feedback' + questionNumber);
+        var index = questionNumber - 1;
+
+        if (questionNumber !== currentQuestion) {
+            alert("Por favor, responda primeiro a pergunta " + currentQuestion + ".");
+            return;
+        }
+
+        if (answeredCorrectly[index]) {
+            return;
+        }
+
+        attempts[index]++;
+        userAnswers[index] = answer;
+
+        if (answer === correctAnswers[index]) {
+            var points = getScore(attempts[index]);
+            answeredCorrectly[index] = true;
+
+            feedbackElement.textContent = "Correto! Pontuação: " + points;
+            feedbackElement.style.color = "green";
+            button.style.backgroundColor = "green";
+
+            totalScore += points;
+            updateTotalScore();
+
+            lockQuestion(questionNumber, true);
+
+            currentQuestion++;
+            if (currentQuestion <= 8) {
+                lockQuestion(currentQuestion, false);
+            }
+        } else {
+            feedbackElement.textContent = "Incorreto! Tente novamente.";
+            feedbackElement.style.color = "red";
+            button.style.backgroundColor = "red";
+            button.disabled = true;
+        }
+    }
+
+    function getScore(attemptCount) {
+        if (attemptCount === 1) {
+            return 4;
+        } else if (attemptCount === 2) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
+
+    function updateTotalScore() {
+        var totalScoreElement = document.getElementById('totalScore');
+        totalScoreElement.textContent = "Pontuação Total: " + totalScore;
+    }
+
+    function lockQuestion(questionNumber, shouldLock) {
+        var questionDiv = document.getElementById("question" + questionNumber);
+        var buttons = questionDiv.querySelectorAll("button");
+
+        buttons.forEach(function(btn) {
+            btn.disabled = shouldLock;
+        });
+
+        questionDiv.style.opacity = shouldLock ? "0.6" : "1";
+    }
+
+    function submitResults() {
+        if (!answeredCorrectly.every(Boolean)) {
+            alert("Por favor, complete todas as perguntas antes de enviar.");
+            return;
+        }
+
+        var userName = document.getElementById("userName").value;
+        var userEmail = document.getElementById("userEmail").value;
+        var resultMessage = "Nome: " + userName + "\nEmail: " + userEmail + "\nPontuação Total: " + totalScore + "\n\nRespostas:\n";
+
+        for (var i = 0; i < userAnswers.length; i++) {
+            resultMessage += "Pergunta " + (i + 1) + ": " + userAnswers[i] + "\n";
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "send_results_t.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                alert("Resultados enviados com sucesso!");
+            }
+        };
+        xhr.send(
+            "name=" + encodeURIComponent(userName) +
+            "&email=" + encodeURIComponent(userEmail) +
+            "&totalScore=" + totalScore +
+            "&answers=" + encodeURIComponent(resultMessage)
+        );
+    }
+</script>
+</body>
+</html>
+
